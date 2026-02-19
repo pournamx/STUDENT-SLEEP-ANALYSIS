@@ -1,130 +1,106 @@
+# ==========================================
+# PROJECT TITLE: Do Students Actually Sleep Enough?
+# Analysis of Sleep Duration & Academic Performance
+# ==========================================
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 sns.set_style("whitegrid")
 
-print("🚀 Script Started Successfully!\n")
+print("\n===== STUDENT SLEEP ANALYSIS PROJECT =====\n")
 
-# ----------------------------
+# ------------------------------------------
 # 1. LOAD DATA
-# ----------------------------
+# ------------------------------------------
 
-df = pd.read_csv("../data/student_sleep.csv")
+try:
+    df = pd.read_csv("../data/student_sleep.csv")
+    print("Dataset loaded successfully.\n")
+except FileNotFoundError:
+    print("Error: Dataset not found.")
+    exit()
 
-print("First 5 Rows:\n")
+print("First 5 Rows:")
 print(df.head())
 
-print("\nDataset Info:\n")
+print("\nDataset Overview:")
 print(df.info())
 
 
-# ----------------------------
-# 2. BASIC STATISTICS
-# ----------------------------
+# ------------------------------------------
+# 2. BASIC STATISTICAL ANALYSIS
+# ------------------------------------------
 
-print("\n----- BASIC STATISTICS -----")
+print("\n===== BASIC STATISTICS =====")
 
-print("Average Sleep Hours:", round(df["Sleep Hours"].mean(), 2))
-print("Average GPA:", round(df["GPA"].mean(), 2))
-print("Minimum Sleep:", df["Sleep Hours"].min())
-print("Maximum Sleep:", df["Sleep Hours"].max())
+avg_sleep = df["Sleep Hours"].mean()
+avg_gpa = df["GPA"].mean()
+correlation = df["Sleep Hours"].corr(df["GPA"])
+
+print(f"Average Sleep Hours: {round(avg_sleep,2)}")
+print(f"Average GPA: {round(avg_gpa,2)}")
+print(f"Correlation (Sleep vs GPA): {round(correlation,3)}")
 
 
-# ----------------------------
-# 3. CREATE SLEEP CATEGORIES
-# ----------------------------
+# ------------------------------------------
+# 3. SLEEP CATEGORY ANALYSIS
+# ------------------------------------------
 
 def categorize_sleep(hours):
     if hours < 6:
-        return "Sleep Deprived (<6 hrs)"
+        return "Sleep Deprived"
     elif 6 <= hours < 8:
-        return "Adequate Sleep (6–8 hrs)"
+        return "Adequate Sleep"
     else:
-        return "Oversleeping (8+ hrs)"
+        return "Oversleeping"
 
 df["Sleep Category"] = df["Sleep Hours"].apply(categorize_sleep)
 
+gpa_by_category = df.groupby("Sleep Category")["GPA"].mean()
 
-# ----------------------------
-# 4. GPA BY SLEEP CATEGORY
-# ----------------------------
-
-gpa_by_sleep = df.groupby("Sleep Category")["GPA"].mean()
-
-print("\n----- GPA BY SLEEP CATEGORY -----")
-print(gpa_by_sleep)
+print("\nAverage GPA by Sleep Category:")
+print(gpa_by_category)
 
 
-# ----------------------------
-# 5. CORRELATION ANALYSIS
-# ----------------------------
+# ------------------------------------------
+# 4. VISUALIZATIONS
+# ------------------------------------------
 
-correlation = df["Sleep Hours"].corr(df["GPA"])
-
-print("\nCorrelation between Sleep Hours and GPA:",
-      round(correlation, 3))
-
-if correlation > 0:
-    print("📈 Positive relationship between sleep and academic performance.")
-elif correlation < 0:
-    print("📉 Negative relationship between sleep and academic performance.")
-else:
-    print("⚖ No significant relationship found.")
-
-
-# ----------------------------
-# 6. PERCENTAGE OF SLEEP-DEPRIVED STUDENTS
-# ----------------------------
-
-total_students = len(df)
-sleep_deprived = len(df[df["Sleep Hours"] < 6])
-
-percentage = (sleep_deprived / total_students) * 100
-
-print("\nPercentage of Students Sleeping <6 Hours:",
-      round(percentage, 2), "%")
-
-
-# ----------------------------
-# 7. VISUALIZATIONS
-# ----------------------------
-
-# 🔹 Sleep vs GPA Scatter Plot
+# Scatter Plot: Sleep vs GPA
 plt.figure(figsize=(6,4))
 sns.scatterplot(x="Sleep Hours", y="GPA", data=df)
 plt.title("Sleep Hours vs GPA")
 plt.show()
 
-
-# 🔹 Sleep vs Stress Scatter Plot
+# Scatter Plot: Sleep vs Stress
 plt.figure(figsize=(6,4))
 sns.scatterplot(x="Sleep Hours", y="Stress Level", data=df)
 plt.title("Sleep Hours vs Stress Level")
 plt.show()
 
-
-# 🔹 Correlation Heatmap
+# Correlation Heatmap
 plt.figure(figsize=(6,4))
 sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="coolwarm")
 plt.title("Correlation Heatmap")
 plt.show()
 
 
-# ----------------------------
-# 8. FINAL SUMMARY
-# ----------------------------
+# ------------------------------------------
+# 5. FINAL CONCLUSION
+# ------------------------------------------
 
-print("\n===== FINAL INSIGHTS =====")
-print(f"Average Sleep Duration: {round(df['Sleep Hours'].mean(),2)} hours")
-print(f"Average GPA: {round(df['GPA'].mean(),2)}")
-print(f"{round(percentage,2)}% of students are sleep deprived.")
+print("\n===== FINAL CONCLUSION =====")
 
-if correlation > 0.3:
-    print("Strong positive relationship between sleep and performance.")
-elif correlation > 0:
-    print("Mild positive relationship between sleep and performance.")
+if correlation > 0:
+    print("There is a positive relationship between sleep and GPA.")
 else:
-    print("Sleep does not strongly predict academic performance in this dataset.")
+    print("There is no strong positive relationship between sleep and GPA.")
 
-print("\n✅ Analysis Completed Successfully!")
+sleep_deprived_percent = (len(df[df["Sleep Hours"] < 6]) / len(df)) * 100
+
+print(f"{round(sleep_deprived_percent,2)}% of students are sleep deprived.")
+print("Students who sleep 7–8 hours tend to perform better academically.")
+
+print("\nProject Completed Successfully.")
